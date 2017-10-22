@@ -1,6 +1,8 @@
 FROM golang:1.8.3 as build
 WORKDIR /go/src/dotabot-cron
 
+COPY vendor vendor
+
 COPY dota dota 
 COPY matches matches
 COPY repository repository
@@ -18,4 +20,6 @@ RUN apk --update --no-cache add ca-certificates
 
 COPY --from=build /go/src/dotabot-cron/dotabot-cron .
 
-CMD ["./dotabot-cron"]
+COPY docker-entrypoint.sh .
+
+CMD ["./docker-entrypoint.sh"]

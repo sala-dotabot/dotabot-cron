@@ -1,1 +1,3 @@
 dotabot-cron.exe
+.env
+docker-compose.yml

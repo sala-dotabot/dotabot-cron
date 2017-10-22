@@ -6,6 +6,8 @@ import (
 	"dotabot-cron/repository"
 	"dotabot-cron/telegram"
 	"os"
+
+	"github.com/go-redis/redis"
 )
 
 type Context struct {
@@ -32,7 +34,13 @@ func InitContext() (context *Context, err error) {
 		return
 	}
 
-	var subscriptionRepository repository.SubscriptionRepository = repository.CreateMapRepository()
+	client := redis.NewClient(&redis.Options{
+		Addr:     getRedisAddr(),
+		Password: "",
+		DB:       0,
+	})
+
+	var subscriptionRepository repository.SubscriptionRepository = repository.CreateRedisRepository(client)
 
 	matchSubscriber := matches.CreateMatchSubscriber(dotaApi, subscriptionRepository, telegramApi)
 	if err != nil {
@@ -71,4 +79,8 @@ func getTelegramApiBaseUrl() string {
 
 func getTelegramApiToken() string {
 	return os.Getenv("TELEGRAM_API_TOKEN")
+}
+
+func getRedisAddr() string {
+	return os.Getenv("REDIS_ADDR")
 }
