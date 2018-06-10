@@ -23,13 +23,14 @@ func InitContext() (context *Context, err error) {
 
 	telegramApiBaseUrl := getTelegramApiBaseUrl()
 	telegramApiToken := getTelegramApiToken()
+	telegramProxyUrl := getTelegramProxyUrl()
 
 	dotaApi, err := dota.NewDotaClient(dotaApiBaseUrl, dotaApiToken)
 	if err != nil {
 		return
 	}
 
-	telegramApi, err := telegram.CreateTelegramApiClient(telegramApiBaseUrl, telegramApiToken)
+	telegramApi, err := telegram.CreateTelegramApiClient(telegramApiBaseUrl, telegramApiToken, telegramProxyUrl)
 	if err != nil {
 		return
 	}
@@ -83,4 +84,8 @@ func getTelegramApiToken() string {
 
 func getRedisAddr() string {
 	return os.Getenv("REDIS_ADDR")
+}
+
+func getTelegramProxyUrl() string {
+	return os.Getenv("TELEGRAM_PROXY_URL")
 }
