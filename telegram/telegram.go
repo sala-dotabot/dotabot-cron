@@ -49,7 +49,7 @@ func (this TelegramApiClient) SendMessage(chat_id int64, message string) error {
 	}
 
 	client := &http.Client{
-		Timeout: 10000
+		Timeout: 10000,
 	}
 	if this.proxy != nil  {
 		tr := &http.Transport{
