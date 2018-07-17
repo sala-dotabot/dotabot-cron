@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"errors"
+	"log"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -31,6 +32,7 @@ func CreateTelegramApiClient(baseUrl string, token string, proxy string) (result
 
 	var proxyUrl *url.URL = nil
 	if proxy != "" {
+		log.Printf("Using proxy: %s", proxy)
 		proxyUrl, err = url.Parse(proxy)
 		if err != nil {
 			return
