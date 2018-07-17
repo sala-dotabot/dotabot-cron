@@ -48,11 +48,13 @@ func (this MatchSubscriberImpl) ProcessSubscription(subscription repository.Tele
 	log.Printf("matchId: %d, lastKnownId: %d", matchId, lastKnownId)
 
 	if matchId > lastKnownId {
-		this.subscriptionRepository.SaveLastKnownMatchId(subscription, uint64(matchId))
+		log.Printf("Sending message for match %d", matchId)
 		err := this.telegramApi.SendMessage(subscription.ChatId, fmt.Sprintf("New match: %d", matchId))
 		if err != nil {
 			return err
 		}
+
+		this.subscriptionRepository.SaveLastKnownMatchId(subscription, uint64(matchId))
 	}
 
 	return nil

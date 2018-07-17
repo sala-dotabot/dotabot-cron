@@ -48,7 +48,9 @@ func (this TelegramApiClient) SendMessage(chat_id int64, message string) error {
 		return err
 	}
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 10000
+	}
 	if this.proxy != nil  {
 		tr := &http.Transport{
 			Proxy: http.ProxyURL(this.proxy),
