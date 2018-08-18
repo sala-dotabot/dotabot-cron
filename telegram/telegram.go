@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"time"
 	"errors"
 	"log"
 	"fmt"
@@ -51,7 +52,7 @@ func (this TelegramApiClient) SendMessage(chat_id int64, message string) error {
 	}
 
 	client := &http.Client{
-		Timeout: 10000,
+		Timeout: 10 * time.Second,
 	}
 	if this.proxy != nil  {
 		tr := &http.Transport{
