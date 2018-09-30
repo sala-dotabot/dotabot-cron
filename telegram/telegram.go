@@ -51,14 +51,19 @@ func (this TelegramApiClient) SendMessage(chat_id int64, message string) error {
 		return err
 	}
 
+	var tr *http.Transport
+	if this.proxy != nil  {
+		log.Printf("Using proxy %s", this.proxy)
+		tr = &http.Transport{
+			Proxy: http.ProxyURL(this.proxy),
+			DisableKeepAlives: false, 
+		}
+	} else {
+		tr = nil
+	}
 	client := &http.Client{
 		Timeout: 10 * time.Second,
-	}
-	if this.proxy != nil  {
-		tr := &http.Transport{
-			Proxy: http.ProxyURL(this.proxy),
-		}
-		client.Transport = tr
+		Transport: tr,
 	}
 
 	q := urlTemplate.Query()
@@ -66,6 +71,7 @@ func (this TelegramApiClient) SendMessage(chat_id int64, message string) error {
 	q.Set("text", message)
 	urlTemplate.RawQuery = q.Encode()
 
+	log.Printf("Sending message: %s", urlTemplate.String())
 	// TODO: parse response
 	_, err = client.Get(urlTemplate.String())
 	if err != nil {

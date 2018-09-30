@@ -5,9 +5,10 @@ import (
 	"dotabot-cron/matches"
 	"dotabot-cron/repository"
 	"dotabot-cron/telegram"
+	"log"
 	"os"
 
-	"github.com/go-redis/redis"
+//	"github.com/go-redis/redis"
 )
 
 type Context struct {
@@ -20,10 +21,12 @@ type Context struct {
 func InitContext() (context *Context, err error) {
 	dotaApiBaseUrl := getDotaApiBaseUrl()
 	dotaApiToken := getDotaApiToken()
+	log.Printf("Loaded dota settings %s, %s", dotaApiBaseUrl, dotaApiToken)
 
 	telegramApiBaseUrl := getTelegramApiBaseUrl()
 	telegramApiToken := getTelegramApiToken()
 	telegramProxyUrl := getTelegramProxyUrl()
+	log.Printf("Loaded telegram settings: %s, %s, %s", telegramApiBaseUrl, telegramApiToken, telegramProxyUrl)
 
 	dotaApi, err := dota.NewDotaClient(dotaApiBaseUrl, dotaApiToken)
 	if err != nil {
@@ -35,13 +38,21 @@ func InitContext() (context *Context, err error) {
 		return
 	}
 
-	client := redis.NewClient(&redis.Options{
-		Addr:     getRedisAddr(),
-		Password: "",
-		DB:       0,
-	})
+	// client := redis.NewClient(&redis.Options{
+	// 	Addr:     getRedisAddr(),
+	// 	Password: "",
+	// 	DB:       0,
+	// })
 
-	var subscriptionRepository repository.SubscriptionRepository = repository.CreateRedisRepository(client)
+	// var subscriptionRepository repository.SubscriptionRepository = repository.CreateRedisRepository(client)
+
+	fakeSub := repository.TelegramMatchSubscription {
+		ChatId: 151904085,
+		DotaAccountId: "70766996",
+	}
+
+	subscriptionRepository := repository.CreateMapRepository()
+	subscriptionRepository.SaveLastKnownMatchId(fakeSub, 0)
 
 	matchSubscriber := matches.CreateMatchSubscriber(dotaApi, subscriptionRepository, telegramApi)
 	if err != nil {

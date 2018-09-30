@@ -1,4 +1,4 @@
-FROM golang:1.8.3 as build
+FROM golang:1.10.4 as build
 WORKDIR /go/src/dotabot-cron
 
 COPY vendor vendor
