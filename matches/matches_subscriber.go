@@ -49,7 +49,7 @@ func (this MatchSubscriberImpl) ProcessSubscription(subscription repository.Tele
 
 	if matchId > lastKnownId {
 		log.Printf("Sending message for match %d", matchId)
-		err := this.telegramApi.SendMessage(subscription.ChatId, fmt.Sprintf("New match: %d", matchId))
+		err := this.telegramApi.SendMessage(subscription.ChatId, fmt.Sprintf("New match: https://www.dotabuff.com/matches/%d", matchId))
 		if err != nil {
 			return err
 		}
