@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-//	"github.com/go-redis/redis"
+	"github.com/go-redis/redis"
 )
 
 type Context struct {
@@ -38,21 +38,13 @@ func InitContext() (context *Context, err error) {
 		return
 	}
 
-	// client := redis.NewClient(&redis.Options{
-	// 	Addr:     getRedisAddr(),
-	// 	Password: "",
-	// 	DB:       0,
-	// })
+	client := redis.NewClient(&redis.Options{
+		Addr:     getRedisAddr(),
+		Password: "",
+		DB:       0,
+	})
 
-	// var subscriptionRepository repository.SubscriptionRepository = repository.CreateRedisRepository(client)
-
-	fakeSub := repository.TelegramMatchSubscription {
-		ChatId: 151904085,
-		DotaAccountId: "70766996",
-	}
-
-	subscriptionRepository := repository.CreateMapRepository()
-	subscriptionRepository.SaveLastKnownMatchId(fakeSub, 0)
+	var subscriptionRepository repository.SubscriptionRepository = repository.CreateRedisRepository(client)
 
 	matchSubscriber := matches.CreateMatchSubscriber(dotaApi, subscriptionRepository, telegramApi)
 	if err != nil {
