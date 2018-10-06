@@ -23,7 +23,7 @@ func parseDotaAccountId(k string) string {
 
 func (this RedisRepository) GetLastKnownMatchId(subscription TelegramMatchSubscription) (result int64, err error) {
 	// Supporting spring-data-redis style
-	hash, err := this.client.HGetAll("telegramMatchSubscription:" + strconv.FormatInt(subscription.ChatId, 10)).Result()
+	hash, err := this.client.HGetAll(makeTelegramChatKey(subscription.ChatId)).Result()
 	if err != nil {
 		return
 	}
@@ -46,10 +46,25 @@ func (this RedisRepository) GetLastKnownMatchId(subscription TelegramMatchSubscr
 	return
 }
 
-func (this RedisRepository) SaveLastKnownMatchId(subscription TelegramMatchSubscription, matchId uint64) error {
-	telegramChatKey := "telegramMatchSubscription:" + strconv.FormatInt(subscription.ChatId, 10)
+func makeTelegramChatKey(chatId int64) string {
+	return "telegramMatchSubscription:" + strconv.FormatInt(chatId, 10)
+}
 
-	_, err := this.client.HSet(telegramChatKey, "lastMatches.["+subscription.DotaAccountId+"]", strconv.FormatUint(matchId, 10)).Result()
+func makeAccountIdKey(dotaAccountId string) string {
+	return "lastMatches[" + dotaAccountId + "]"
+}
+
+func (this RedisRepository) SaveLastKnownMatchId(subscription TelegramMatchSubscription, matchId uint64) error {
+	telegramChatKey := makeTelegramChatKey(subscription.ChatId)
+
+	_, err := this.client.HSet(telegramChatKey, makeAccountIdKey(subscription.DotaAccountId), strconv.FormatUint(matchId, 10)).Result()
+	return err
+}
+
+func (this RedisRepository) RemoveLastKnownMatchId(subscription TelegramMatchSubscription) error {
+	telegramChatKey := makeTelegramChatKey(subscription.ChatId)
+
+	_, err := this.client.HDel(telegramChatKey, makeAccountIdKey(subscription.DotaAccountId)).Result()
 	return err
 }
 

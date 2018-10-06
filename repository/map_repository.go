@@ -1,11 +1,5 @@
 package repository
 
-type SubscriptionRepository interface {
-	GetLastKnownMatchId(subscription TelegramMatchSubscription) (int64, error)
-	SaveLastKnownMatchId(subscription TelegramMatchSubscription, matchId uint64) error
-	FindAll() ([]TelegramMatchSubscription, error)
-}
-
 type MapRespository struct {
 	holder map[TelegramMatchSubscription]uint64
 }
@@ -33,5 +27,10 @@ func (this MapRespository) GetLastKnownMatchId(subscription TelegramMatchSubscri
 
 func (this MapRespository) SaveLastKnownMatchId(subscription TelegramMatchSubscription, matchId uint64) error {
 	this.holder[subscription] = matchId
+	return nil
+}
+
+func (this MapRespository) RemoveLastKnownMatchId(subscription TelegramMatchSubscription) error {
+	delete(this.holder, subscription)
 	return nil
 }
