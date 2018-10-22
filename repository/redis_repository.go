@@ -51,7 +51,7 @@ func makeTelegramChatKey(chatId int64) string {
 }
 
 func makeAccountIdKey(dotaAccountId string) string {
-	return "lastMatches[" + dotaAccountId + "]"
+	return "lastMatches.[" + dotaAccountId + "]"
 }
 
 func (this RedisRepository) SaveLastKnownMatchId(subscription TelegramMatchSubscription, matchId uint64) error {
@@ -86,7 +86,7 @@ func (this RedisRepository) FindAll() (result []TelegramMatchSubscription, err e
 		}
 
 		for _, hkey := range hkeys {
-			if !strings.HasPrefix(hkey, "lastMatches") {
+			if !strings.HasPrefix(hkey, "lastMatches.") {
 				continue
 			}
 
