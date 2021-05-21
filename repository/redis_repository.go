@@ -99,10 +99,10 @@ func (this RedisRepository) FindAll() (result []TelegramMatchSubscription, err e
 	return
 }
 
-func (this RedisRepository) FindByChatId(int64 chatId) (result []TelegramMatchSubscription, err error) {
+func (this RedisRepository) FindByChatId(chatId int64) (result []TelegramMatchSubscription, err error) {
 	telegramChatKey := makeTelegramChatKey(chatId)
 
-	hkeys, err := this.client.HKeys(chatIdKey).Result()
+	hkeys, err := this.client.HKeys(telegramChatKey).Result()
 	if err != nil {
 		return nil, err
 	}
