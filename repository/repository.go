@@ -5,4 +5,5 @@ type SubscriptionRepository interface {
 	SaveLastKnownMatchId(subscription TelegramMatchSubscription, matchId uint64) error
 	RemoveLastKnownMatchId(subscription TelegramMatchSubscription) error
 	FindAll() ([]TelegramMatchSubscription, error)
+	FindByChatId(chatId int64) ([]TelegramMatchSubscription, error)
 }

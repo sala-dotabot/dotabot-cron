@@ -98,3 +98,24 @@ func (this RedisRepository) FindAll() (result []TelegramMatchSubscription, err e
 
 	return
 }
+
+func (this RedisRepository) FindByChatId(int64 chatId) (result []TelegramMatchSubscription, err error) {
+	telegramChatKey := makeTelegramChatKey(chatId)
+
+	hkeys, err := this.client.HKeys(chatIdKey).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, hkey := range hkeys {
+		if !strings.HasPrefix(hkey, "lastMatches.") {
+			continue
+		}
+
+		dotaAccountId := parseDotaAccountId(hkey)
+		subscription := TelegramMatchSubscription{ChatId: chatId, DotaAccountId: dotaAccountId}
+		result = append(result, subscription)
+	}
+
+	return
+}
