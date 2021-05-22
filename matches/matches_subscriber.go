@@ -1,11 +1,12 @@
 package matches
 
 import (
-	"dotabot-cron/dota"
-	"dotabot-cron/repository"
-	"dotabot-cron/telegram"
 	"fmt"
 	"log"
+
+	"github.com/saladinkzn/dotabot-cron/dota"
+	"github.com/saladinkzn/dotabot-cron/repository"
+	"github.com/saladinkzn/dotabot-cron/telegram"
 )
 
 type MatchSubscriber interface {

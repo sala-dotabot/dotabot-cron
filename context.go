@@ -1,12 +1,13 @@
 package main
 
 import (
-	"dotabot-cron/dota"
-	"dotabot-cron/matches"
-	"dotabot-cron/repository"
-	"dotabot-cron/telegram"
 	"log"
 	"os"
+
+	"github.com/saladinkzn/dotabot-cron/dota"
+	"github.com/saladinkzn/dotabot-cron/matches"
+	"github.com/saladinkzn/dotabot-cron/repository"
+	"github.com/saladinkzn/dotabot-cron/telegram"
 
 	"github.com/go-redis/redis"
 )
