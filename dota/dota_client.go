@@ -6,10 +6,12 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type DotaApi interface {
 	GetMatchesHistory(account_id string) (MatchesResult, error)
+	GetMatchDetails(match_id uint64) (MatchResult, error)
 }
 
 type DotaClient struct {
@@ -40,6 +42,29 @@ func (this DotaClient) GetMatchesHistory(account_id string) (result MatchesResul
 
 	query := url.Query()
 	query.Set("account_id", account_id)
+	query.Set("key", this.key)
+	url.RawQuery = query.Encode()
+
+	resp, err := http.Get(url.String())
+	if err != nil {
+		return
+	}
+
+	b := bytes.Buffer{}
+	b.ReadFrom(resp.Body)
+
+	err = json.Unmarshal(b.Bytes(), &result)
+	return
+}
+
+func (this DotaClient) GetMatchDetails(match_id uint64) (result MatchResult, err error) {
+	url, err := url.Parse(this.baseUrl + "/IDOTA2Match_570/GetMatchDetails/v001/")
+	if err != nil {
+		return
+	}
+
+	query := url.Query()
+	query.Set("match_id", strconv.FormatUint(match_id, 10))
 	query.Set("key", this.key)
 	url.RawQuery = query.Encode()
 

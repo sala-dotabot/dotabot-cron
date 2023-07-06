@@ -3,6 +3,7 @@ package matches
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/saladinkzn/dotabot-cron/dota"
 	"github.com/saladinkzn/dotabot-cron/repository"
@@ -50,7 +51,14 @@ func (this MatchSubscriberImpl) ProcessSubscription(subscription repository.Tele
 
 	if matchId > lastKnownId {
 		log.Printf("Sending message for match %d", matchId)
-		err := this.telegramApi.SendMessage(subscription.ChatId, fmt.Sprintf("New match: https://www.dotabuff.com/matches/%d", matchId))
+		matchDetailsResult, err := this.dotaApi.GetMatchDetails(uint64(matchId))
+		if err != nil {
+			return err
+		}
+
+		message := GetMessage(matchDetailsResult.Result, accountId)
+
+		err = this.telegramApi.SendMessage(subscription.ChatId, message)
 		if err != nil {
 			return err
 		}
@@ -59,4 +67,30 @@ func (this MatchSubscriberImpl) ProcessSubscription(subscription repository.Tele
 	}
 
 	return nil
+}
+
+func GetMessage(match dota.MatchDetails, accountIdStr string) string {
+	format := `New match: https://www.dotabuff.com/matches/%d
+Player (%d) %s. KDA: %d/%d/%d
+`
+	accountId, _ := strconv.ParseInt(accountIdStr, 10, 64)
+
+	thePlayer := match.Players[0]
+	players := match.Players
+	for _, player := range players {
+		if player.AccountId == accountId {
+			thePlayer = player
+		}
+	}
+
+	isPlayerRadiant := thePlayer.TeamNumber == 0
+	radiantWin := match.RadiantWin
+
+	var winString string
+	if isPlayerRadiant && radiantWin || !isPlayerRadiant && !radiantWin {
+		winString = "WIN"
+	} else {
+		winString = "LOST"
+	}
+	return fmt.Sprintf(format, match.MatchId, accountIdStr, winString, thePlayer.Kills, thePlayer.Deaths, thePlayer.Assists)
 }
