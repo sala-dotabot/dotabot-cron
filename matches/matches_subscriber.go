@@ -92,5 +92,5 @@ Player (%d) %s. KDA: %d/%d/%d
 	} else {
 		winString = "LOST"
 	}
-	return fmt.Sprintf(format, match.MatchId, accountIdStr, winString, thePlayer.Kills, thePlayer.Deaths, thePlayer.Assists)
+	return fmt.Sprintf(format, match.MatchId, accountId, winString, thePlayer.Kills, thePlayer.Deaths, thePlayer.Assists)
 }
