@@ -36,6 +36,11 @@ type Response struct {
 	ErrorMessage string `json:"errorMessage"`
 }
 
+type ErrorResponse struct {
+	Code    int64  `json:"code"`
+	Message string `json:"message"`
+}
+
 func CreatePayload(timestamp time.Time, labels map[string]string, metrics []Metric) Payload {
 	return Payload{
 		Timestamp: timestamp.Format(time.RFC3339),

@@ -8,14 +8,18 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type IamContext struct {
+type IamContext interface {
+	SignedToken() (signed string, err error)
+}
+
+type IamContextImpl struct {
 	keyId            string
 	serviceAccountID string
 	keyFileName      string
 }
 
 func CreateIamContext(keyId string, serviceAccountId string, keyFileName string) IamContext {
-	return IamContext{
+	return &IamContextImpl{
 		keyId:            keyId,
 		serviceAccountID: serviceAccountId,
 		keyFileName:      keyFileName,
@@ -23,7 +27,7 @@ func CreateIamContext(keyId string, serviceAccountId string, keyFileName string)
 }
 
 // Формирование JWT.
-func (this *IamContext) SignedToken() (signed string, err error) {
+func (this *IamContextImpl) SignedToken() (signed string, err error) {
 	claims := jwt.RegisteredClaims{
 		Issuer:    this.serviceAccountID,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
@@ -42,7 +46,7 @@ func (this *IamContext) SignedToken() (signed string, err error) {
 	return
 }
 
-func (this *IamContext) loadPrivateKey() (rsaPrivateKey *rsa.PrivateKey, err error) {
+func (this *IamContextImpl) loadPrivateKey() (rsaPrivateKey *rsa.PrivateKey, err error) {
 	data, err := ioutil.ReadFile(this.keyFileName)
 	if err != nil {
 		return

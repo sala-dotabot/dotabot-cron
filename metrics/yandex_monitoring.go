@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -36,6 +37,7 @@ func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[st
 	query := url.Query()
 	query.Set("folderId", this.folderId)
 	query.Set("service", "custom")
+	url.RawQuery = query.Encode()
 
 	payload := Payload{
 		Timestamp: timestamp.Format(time.RFC3339),
@@ -69,12 +71,23 @@ func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[st
 	respBuffer := bytes.Buffer{}
 	respBuffer.ReadFrom(resp.Body)
 
-	var respStruct Response
-	json.Unmarshal(respBuffer.Bytes(), &respStruct)
+	if err != nil {
+		return
+	}
 	if resp.StatusCode == 200 {
+		var respStruct Response
+		err = json.Unmarshal(respBuffer.Bytes(), &respStruct)
+		if err != nil {
+			return
+		}
 		result = respStruct.Write
 	} else {
-		err = errors.New(respStruct.ErrorMessage)
+		var respStruct ErrorResponse
+		err = json.Unmarshal(respBuffer.Bytes(), &respStruct)
+		if err != nil {
+			return
+		}
+		err = errors.New("Status Code: " + strconv.FormatInt(int64(resp.StatusCode), 10) + ", message: " + respStruct.Message)
 	}
 	return
 }
