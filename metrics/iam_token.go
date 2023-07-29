@@ -18,7 +18,7 @@ func CreateIamContext(keyId string, serviceAccountId string, keyFileName string)
 	return IamContext{
 		keyId:            keyId,
 		serviceAccountID: serviceAccountId,
-		keyFileName:      keyId,
+		keyFileName:      keyFileName,
 	}
 }
 
