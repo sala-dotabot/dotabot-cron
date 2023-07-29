@@ -7,6 +7,7 @@ COPY vendor vendor
 
 COPY dota dota 
 COPY matches matches
+COPY metrics metrics
 COPY repository repository
 COPY telegram telegram
 COPY tests tests

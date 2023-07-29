@@ -6,6 +6,7 @@ import (
 
 	"github.com/saladinkzn/dotabot-cron/dota"
 	"github.com/saladinkzn/dotabot-cron/matches"
+	"github.com/saladinkzn/dotabot-cron/metrics"
 	"github.com/saladinkzn/dotabot-cron/repository"
 	"github.com/saladinkzn/dotabot-cron/telegram"
 
@@ -17,6 +18,7 @@ type Context struct {
 	TelegramApi            telegram.TelegramApi
 	MatchSubscriber        matches.MatchSubscriber
 	SubscriptionRepository repository.SubscriptionRepository
+	YandexMonitoringClient metrics.YandexMonitoringClient
 }
 
 func InitContext() (context *Context, err error) {
@@ -52,11 +54,14 @@ func InitContext() (context *Context, err error) {
 		return
 	}
 
+	monitoringClient := metrics.MakeYandexMonitoringClientImpl(getMonitoringUrl(), getFolderId(), getIamContext())
+
 	context = &Context{
 		DotaApi:                dotaApi,
 		TelegramApi:            telegramApi,
 		MatchSubscriber:        matchSubscriber,
-		SubscriptionRepository: subscriptionRepository}
+		SubscriptionRepository: subscriptionRepository,
+		YandexMonitoringClient: monitoringClient}
 	return
 }
 
@@ -92,4 +97,32 @@ func getRedisAddr() string {
 
 func getTelegramProxyUrl() string {
 	return os.Getenv("TELEGRAM_PROXY_URL")
+}
+
+func getMonitoringUrl() string {
+	return os.Getenv("MONITORING_URL")
+}
+
+func getFolderId() string {
+	return os.Getenv("FOLDER_ID")
+}
+
+func getServiceAccountId() string {
+	return os.Getenv("SERVICE_ACCOUNT_ID")
+}
+
+func getKeyId() string {
+	return os.Getenv("KEY_ID")
+}
+
+func getKeyFileName() string {
+	return os.Getenv("KEY_FILE_NAME")
+}
+
+func getIamContext() metrics.IamContext {
+	return metrics.CreateIamContext(
+		getKeyId(),
+		getServiceAccountId(),
+		getKeyFileName(),
+	)
 }
