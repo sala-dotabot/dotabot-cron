@@ -6,12 +6,11 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 )
 
 type YandexMonitoringClient interface {
-	Write(timestamp time.Time, labels map[string]string, metrics []Metric) (result bool, err error)
+	Write(timestamp time.Time, labels map[string]string, metrics []Metric) (result int64, err error)
 }
 
 type YandexMonitoringClientImpl struct {
@@ -28,7 +27,7 @@ func MakeYandexMonitoringClientImpl(baseUrl string, folderId string, iamContext 
 	}
 }
 
-func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[string]string, metrics []Metric) (result bool, err error) {
+func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[string]string, metrics []Metric) (result int64, err error) {
 	url, err := url.Parse(this.baseUrl + "/data/write")
 	if err != nil {
 		return
@@ -66,15 +65,16 @@ func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[st
 	if err != nil {
 		return
 	}
-	if resp.StatusCode != 200 {
-		err = errors.New("Status Code: " + strconv.FormatInt(int64(resp.StatusCode), 10))
-		return
-	}
+
 	respBuffer := bytes.Buffer{}
 	respBuffer.ReadFrom(resp.Body)
 
 	var respStruct Response
 	json.Unmarshal(respBuffer.Bytes(), &respStruct)
-	result = respStruct.Write
+	if resp.StatusCode == 200 {
+		result = respStruct.Write
+	} else {
+		err = errors.New(respStruct.ErrorMessage)
+	}
 	return
 }

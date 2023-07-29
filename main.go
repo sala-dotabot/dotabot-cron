@@ -47,11 +47,7 @@ func main() {
 		log.Print(err)
 		return
 	}
-	if result {
-		log.Print("Metrics exported successfully")
-	} else {
-		log.Print("Error writing metrics")
-	}
+	log.Printf("Successfully written %d metrics", result)
 }
 
 func makeLabels() map[string]string {

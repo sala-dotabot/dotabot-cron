@@ -32,7 +32,8 @@ type Payload struct {
 }
 
 type Response struct {
-	Write bool `json:"write"`
+	Write        int64  `json:"writtenMetricsCount"`
+	ErrorMessage string `json:"errorMessage"`
 }
 
 func CreatePayload(timestamp time.Time, labels map[string]string, metrics []Metric) Payload {
