@@ -45,6 +45,7 @@ func main() {
 	result, err := context.YandexMonitoringClient.Write(time.Now(), makeLabels(), metricList)
 	if err != nil {
 		log.Print(err)
+		return
 	}
 	if result {
 		log.Print("Metrics exported successfully")

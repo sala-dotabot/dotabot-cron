@@ -17,7 +17,7 @@ type Point struct {
 }
 
 type Metric struct {
-	Name       string
+	Name       string            `json:"name"`
 	Labels     map[string]string `json:"labels,omitempty"`
 	MetricType string            `json:"type"`
 	Timestamp  string            `json:"ts,omitempty"`

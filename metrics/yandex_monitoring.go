@@ -67,7 +67,8 @@ func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[st
 		return
 	}
 	if resp.StatusCode != 200 {
-		err = errors.New("Status Code" + strconv.FormatInt(int64(resp.StatusCode), 10))
+		err = errors.New("Status Code: " + strconv.FormatInt(int64(resp.StatusCode), 10))
+		return
 	}
 	respBuffer := bytes.Buffer{}
 	respBuffer.ReadFrom(resp.Body)
