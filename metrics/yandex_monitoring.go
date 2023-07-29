@@ -56,7 +56,7 @@ func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[st
 	if err != nil {
 		return
 	}
-	iamToken, err := this.iamContext.SignedToken()
+	iamToken, err := this.iamContext.IamToken()
 	if err != nil {
 		return
 	}
@@ -67,23 +67,18 @@ func (this *YandexMonitoringClientImpl) Write(timestamp time.Time, labels map[st
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
-	respBuffer := bytes.Buffer{}
-	respBuffer.ReadFrom(resp.Body)
-
-	if err != nil {
-		return
-	}
 	if resp.StatusCode == 200 {
 		var respStruct Response
-		err = json.Unmarshal(respBuffer.Bytes(), &respStruct)
+		err = json.NewDecoder(resp.Body).Decode(&respStruct)
 		if err != nil {
 			return
 		}
 		result = respStruct.Write
 	} else {
 		var respStruct ErrorResponse
-		err = json.Unmarshal(respBuffer.Bytes(), &respStruct)
+		err = json.NewDecoder(resp.Body).Decode(&respStruct)
 		if err != nil {
 			return
 		}

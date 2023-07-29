@@ -1,7 +1,6 @@
 package dota
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -49,11 +48,9 @@ func (this DotaClient) GetMatchesHistory(account_id string) (result MatchesResul
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
-	b := bytes.Buffer{}
-	b.ReadFrom(resp.Body)
-
-	err = json.Unmarshal(b.Bytes(), &result)
+	err = json.NewDecoder(resp.Body).Decode(&result)
 	return
 }
 
@@ -73,9 +70,7 @@ func (this DotaClient) GetMatchDetails(match_id uint64) (result MatchResult, err
 		return
 	}
 
-	b := bytes.Buffer{}
-	b.ReadFrom(resp.Body)
-
-	err = json.Unmarshal(b.Bytes(), &result)
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&result)
 	return
 }

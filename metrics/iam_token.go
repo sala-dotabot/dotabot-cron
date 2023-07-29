@@ -2,14 +2,19 @@ package metrics
 
 import (
 	"crypto/rsa"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type IamContext interface {
-	SignedToken() (signed string, err error)
+	IamToken() (signed string, err error)
 }
 
 type IamContextImpl struct {
@@ -27,7 +32,7 @@ func CreateIamContext(keyId string, serviceAccountId string, keyFileName string)
 }
 
 // Формирование JWT.
-func (this *IamContextImpl) SignedToken() (signed string, err error) {
+func (this *IamContextImpl) signedToken() (signed string, err error) {
 	claims := jwt.RegisteredClaims{
 		Issuer:    this.serviceAccountID,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
@@ -43,6 +48,35 @@ func (this *IamContextImpl) SignedToken() (signed string, err error) {
 		return
 	}
 	signed, err = token.SignedString(privateKey)
+	return
+}
+
+func (this *IamContextImpl) IamToken() (iam string, err error) {
+	jwt, err := this.signedToken()
+	if err != nil {
+		return
+	}
+	resp, err := http.Post(
+		"https://iam.api.cloud.yandex.net/iam/v1/tokens",
+		"application/json",
+		strings.NewReader(fmt.Sprintf(`{"jwt":"%s"}`, jwt)),
+	)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		body, _ := ioutil.ReadAll(resp.Body)
+		err = errors.New(fmt.Sprintf("%s: %s", resp.Status, body))
+	}
+	var data struct {
+		IAMToken string `json:"iamToken"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		return
+	}
+	iam = data.IAMToken
 	return
 }
 
