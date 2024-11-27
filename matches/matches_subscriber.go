@@ -69,12 +69,17 @@ func (this MatchSubscriberImpl) ProcessSubscription(subscription repository.Tele
 	return nil
 }
 
-func GetMessage(match dota.MatchDetails, accountIdStr string) string {
-	format := `New match: https://www.dotabuff.com/matches/%d
+const SHORT_FORMAT = "New match: https://www.dotabuff.com/matches/%d"
+const LONG_FORMAT = `New match: https://www.dotabuff.com/matches/%d
 Player (%d) %s. KDA: %d/%d/%d
 `
+
+func GetMessage(match dota.MatchDetails, accountIdStr string) string {
 	accountId, _ := strconv.ParseInt(accountIdStr, 10, 64)
 
+	if len(match.Players) == 0 {
+		return fmt.Sprintf(SHORT_FORMAT, match.MatchId)
+	}
 	thePlayer := match.Players[0]
 	players := match.Players
 	for _, player := range players {
@@ -92,5 +97,5 @@ Player (%d) %s. KDA: %d/%d/%d
 	} else {
 		winString = "LOST"
 	}
-	return fmt.Sprintf(format, match.MatchId, accountId, winString, thePlayer.Kills, thePlayer.Deaths, thePlayer.Assists)
+	return fmt.Sprintf(LONG_FORMAT, match.MatchId, accountId, winString, thePlayer.Kills, thePlayer.Deaths, thePlayer.Assists)
 }
